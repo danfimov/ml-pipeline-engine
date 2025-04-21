@@ -92,15 +92,15 @@ class AnnotationDAGBuilder:
         Получение меток зависимостей для входных kwarg-ов узла
         """
 
-        node = get_callable_run_method(node)
+        node_process_method = get_callable_run_method(node)
 
         inputs = []
-        for name, annotation in node.__annotations__.items():
+        for name, annotation in node_process_method.__annotations__.items():
 
             if isinstance(annotation, InputGenericMark):
                 raise errors.NonRedefinedGenericTypeError(
                     f'Для использования узлов общего назначения необходимо их переопределение для целевого графа. '
-                    f'param_name={name}, node={node}, ',
+                    f'param_name={name}, node={node_process_method}, ',
                 )
 
             if not isinstance(annotation, (InputMark, SwitchCaseMark, InputOneOfMark, RecurrentSubGraphMark)):
