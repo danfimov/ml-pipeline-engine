@@ -19,10 +19,10 @@ class InputMark:
 
 @dataclass(frozen=True)
 class InputOneOfMark:
-    nodes: t.List[NodeBase[t.Any]]
+    nodes: tuple[NodeBase[t.Any]]
 
 
-def InputOneOf(nodes: t.List[NodeBase[NodeResultT]]) -> t.Type[NodeResultT]:  # noqa:  N802,RUF100
+def InputOneOf(nodes: tuple[NodeBase[NodeResultT]]) -> t.Type[NodeResultT]:  # noqa:  N802,RUF100
     """
     Принимает список нод, возвращает результат первой успешно выполненной ноды
     """
@@ -49,14 +49,14 @@ def GenericInput(node: NodeBase[NodeResultT]) -> t.Type[NodeResultT]:  # noqa:  
 @dataclass(frozen=True)
 class SwitchCaseMark:
     switch: NodeBase[t.Any]
-    cases: t.List[t.Tuple[str, NodeBase]]
+    cases: tuple[tuple[str, NodeBase]]
     name: str
 
 
 def SwitchCase(  # noqa:  N802,RUF100
     switch: NodeBase[t.Any],
-    cases: t.List[t.Tuple[CaseLabel, NodeBase[NodeResultT]]],
-    name: t.Optional[str] = None,
+    cases: tuple[tuple[CaseLabel, NodeBase[NodeResultT]]],
+    name: str | None = None,
 ) -> t.Type[NodeResultT]:
     return t.cast(t.Any, SwitchCaseMark(switch, cases, name))
 

@@ -6,6 +6,7 @@ from uuid import UUID
 import networkx as nx
 
 NodeResultT = t.TypeVar('NodeResultT')
+
 AdditionalDataT = t.TypeVar('AdditionalDataT', bound=t.Any)
 
 PipelineId = t.Union[UUID, str]
@@ -23,9 +24,9 @@ class RetryProtocol(t.Protocol):
     Предоставляет возможность использовать дефолтное значение в случае ошибки.
     """
 
-    attempts: t.ClassVar[t.Optional[int]] = None
-    delay: t.ClassVar[t.Optional[t.Union[int, float]]] = None
-    exceptions: t.ClassVar[t.Optional[t.Tuple[t.Type[BaseException], ...]]] = None
+    attempts: t.ClassVar[int | None] = None
+    delay: t.ClassVar[float | None] = None
+    exceptions: t.ClassVar[tuple[t.Type[BaseException], ...] | None] = None
     use_default: t.ClassVar[bool] = False
 
     def get_default(self, **kwargs: t.Any) -> NodeResultT:
@@ -37,12 +38,12 @@ class TagProtocol(t.Protocol):
     Протокол, который позволяет декларировать параметры запуска узла
     """
 
-    tags: t.ClassVar[t.Tuple[NodeTag, ...]] = ()
+    tags: t.ClassVar[tuple[NodeTag, ...]] = ()
 
 
 @dataclass
 class Recurrent:
-    data: t.Optional[AdditionalDataT]
+    data: AdditionalDataT | None
 
 
 class RecurrentProtocol(t.Protocol):
@@ -51,7 +52,7 @@ class RecurrentProtocol(t.Protocol):
     """
 
     @abc.abstractmethod
-    def next_iteration(self, data: t.Optional[AdditionalDataT]) -> Recurrent:
+    def next_iteration(self, data: AdditionalDataT | None) -> Recurrent:
         """
         Метод для инициализации повторного исполнения подграфа
         """
@@ -61,14 +62,11 @@ class NodeBase(RetryProtocol, TagProtocol, t.Protocol[NodeResultT]):
     """
     Basic node interface
     """
-    node_type: t.ClassVar[str] = None
-    name: t.ClassVar[str] = None
-    verbose_name: t.ClassVar[str] = None
+    node_type: t.ClassVar[str | None] = None
+    name: t.ClassVar[str | None] = None
+    verbose_name: t.ClassVar[str | None] = None
 
-    process: t.Union[
-        t.Callable[..., NodeResultT],
-        t.Callable[..., t.Awaitable[NodeResultT]],
-    ]
+    process: t.Callable[..., NodeResultT] | t.Callable[..., t.Awaitable[NodeResultT]]
 
 
 @dataclass(frozen=True)
@@ -79,7 +77,7 @@ class PipelineResult(t.Generic[NodeResultT]):
 
     pipeline_id: PipelineId
     value: NodeResultT
-    error: t.Optional[Exception]
+    error: Exception | None
 
     def raise_on_error(self) -> None:
         if self.error is not None:
@@ -104,15 +102,15 @@ class PipelineChartLike(t.Protocol[NodeResultT]):
     """
 
     model_name: ModelName
-    entrypoint: t.Optional[t.Union[NodeBase[NodeResultT], 'DAGLike[NodeResultT]']]
-    event_managers: t.List[t.Type['EventManagerLike']]
-    artifact_store: t.Optional[t.Type['ArtifactStoreLike']]
+    entrypoint: t.Union[NodeBase[NodeResultT], 'DAGLike[NodeResultT]'] | None
+    event_managers: list[t.Type['EventManagerLike']]
+    artifact_store: t.Type['ArtifactStoreLike'] | None
 
     async def run(
         self,
-        pipeline_id: t.Optional[PipelineId] = None,
-        input_kwargs: t.Optional[t.Dict[str, t.Any]] = None,
-        meta: t.Optional[t.Dict[str, t.Any]] = None,
+        pipeline_id: PipelineId | None = None,
+        input_kwargs: dict[str, t.Any] | None = None,
+        meta: dict[str, t.Any] | None = None,
     ) -> PipelineResult[NodeResultT]:
         ...
 
@@ -127,14 +125,14 @@ class PipelineContextLike(t.Protocol):
 
     chart: PipelineChartLike
     pipeline_id: PipelineId
-    input_kwargs: t.Dict[str, t.Any]
-    meta: t.Dict[str, t.Any]
+    input_kwargs: dict[str, t.Any]
+    meta: dict[str, t.Any]
     artifact_store: 'ArtifactStoreLike'
 
     async def emit_on_node_start(self, node_id: NodeId) -> t.Any:
         ...
 
-    async def emit_on_node_complete(self, node_id: NodeId, error: t.Optional[Exception]) -> t.Any:
+    async def emit_on_node_complete(self, node_id: NodeId, error: Exception | None) -> t.Any:
         ...
 
     async def emit_on_pipeline_start(self) -> t.Any:
@@ -151,7 +149,7 @@ class PipelineContextLike(t.Protocol):
     def model_name(self) -> ModelName:
         ...
 
-    def _get_event_managers(self) -> t.List['EventManagerLike']:
+    def _get_event_managers(self) -> list['EventManagerLike']:
         ...
 
 
@@ -169,7 +167,7 @@ class EventManagerLike(t.Protocol):
     async def on_node_start(self, ctx: PipelineContextLike, node_id: NodeId) -> None:
         ...
 
-    async def on_node_complete(self, ctx: PipelineContextLike, node_id: NodeId, error: t.Optional[Exception]) -> None:
+    async def on_node_complete(self, ctx: PipelineContextLike, node_id: NodeId, error: Exception | None) -> None:
         ...
 
 
@@ -193,7 +191,7 @@ class RetryPolicyLike(t.Protocol):
 
     @property
     @abc.abstractmethod
-    def delay(self) -> int:
+    def delay(self) -> float:
         ...
 
     @property
@@ -203,11 +201,11 @@ class RetryPolicyLike(t.Protocol):
 
     @property
     @abc.abstractmethod
-    def exceptions(self) -> t.Tuple[t.Type[Exception]]:
+    def exceptions(self) -> tuple[t.Type[Exception], ...]:
         ...
 
 
-class DAGRunManagerLike(t.Protocol):
+class DAGRunManagerLike(t.Protocol[NodeResultT]):
     """
     Менеджер управлением запуска графа
     """
@@ -228,7 +226,7 @@ class DAGLike(t.Protocol[NodeResultT]):
     graph: nx.DiGraph
     input_node: NodeId
     output_node: NodeId
-    node_map: t.Dict[NodeId, NodeBase]
+    node_map: dict[NodeId, NodeBase]
     run_manager: DAGRunManagerLike
     retry_policy: RetryPolicyLike
     is_process_pool_needed: bool

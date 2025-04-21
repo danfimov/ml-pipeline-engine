@@ -21,17 +21,22 @@ def generate_pipeline_id() -> uuid.UUID:
     return uuid.uuid4()
 
 
-def generate_node_id(prefix: str, name: t.Optional[str] = None) -> str:
+def generate_node_id(prefix: str, name: str | None = None) -> str:
     return f'{prefix}__{name if name is not None else uuid.uuid4().hex[-8:]}'
 
 
 def get_node_id(node: NodeBase) -> NodeId:
-    node_type = node.node_type if getattr(node, 'node_type', None) else 'node'
+    match getattr(node, 'node_type', None):
+        case None:
+            node_type = 'node'
+        case node_type_value:
+            node_type = node_type_value
 
-    if getattr(node, 'name', None):
-        node_name = node.name
-    else:
-        node_name = f'{node.__module__}_{getattr(node, "__name__", node.__class__.__name__)}'.replace('.', '_')
+    match getattr(node, 'name', None):
+        case None:
+            node_name = f'{node.__module__}_{getattr(node, "__name__", node.__class__.__name__)}'.replace('.', '_')
+        case name:
+            node_name = name
 
     return '__'.join([node_type, node_name])
 
@@ -91,11 +96,11 @@ async def run_node(node: NodeBase[NodeResultT], *args: t.Any, node_id: NodeId, *
 
 def build_node(
     node: NodeBase,
-    node_name: t.Optional[str] = None,
-    class_name: t.Optional[str] = None,
-    atts: t.Optional[t.Dict[str, t.Any]] = None,
-    attrs: t.Optional[t.Dict[str, t.Any]] = None,
-    dependencies_default: t.Optional[t.Dict[str, t.Any]] = None,
+    node_name: str | None = None,
+    class_name: str | None = None,
+    atts: dict[str, t.Any] | None = None,
+    attrs: dict[str, t.Any] | None = None,
+    dependencies_default: dict[str, t.Any] | None = None,
     **target_dependencies: t.Any,
 ) -> t.Type[NodeBase]:
     """

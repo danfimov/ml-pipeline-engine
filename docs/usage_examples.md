@@ -249,4 +249,3 @@ result = chart.run(
 ```bash
 ml_pipeline_engine build-static --dag_path 'ml_pipeline_engine.visualization.sample:sample_dag' --target_dir ./public
 ```
-

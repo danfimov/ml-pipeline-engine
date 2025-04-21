@@ -23,7 +23,7 @@ class DAG(DAGLike):
     output_node: NodeId
     is_process_pool_needed: bool
     is_thread_pool_needed: bool
-    node_map: t.Dict[NodeId, NodeBase]
+    node_map: dict[NodeId, NodeBase]
     retry_policy: t.Type[RetryPolicyLike] = NodeRetryPolicy
     run_manager: t.Type[DAGRunManagerLike] = DAGRunConcurrentManager
 
@@ -46,8 +46,8 @@ class DAG(DAGLike):
     def visualize(  # type: ignore
         self,
         name: str,
-        verbose_name: t.Optional[str] = None,
-        target_dir: t.Optional[t.Union[pathlib.Path, str]] = None,
+        verbose_name: str | None = None,
+        target_dir: pathlib.Path | str | None = None,
         **kwargs: t.Any,
     ) -> None:
         """

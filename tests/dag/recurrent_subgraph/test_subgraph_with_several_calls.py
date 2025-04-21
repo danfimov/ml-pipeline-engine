@@ -16,7 +16,7 @@ class InvertNumber(RecurrentProcessor):
     def process(
         self,
         num: float,
-        additional_data: t.Optional[AdditionalDataT] = None,
+        additional_data: AdditionalDataT | None = None,
     ) -> float:
 
         if additional_data is None:

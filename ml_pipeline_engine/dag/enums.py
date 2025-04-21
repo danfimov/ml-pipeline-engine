@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class NodeField(str, Enum):
+class NodeField(StrEnum):
     is_switch = 'is_switch'
     is_oneof_head = 'is_oneof'
     is_oneof_child = 'is_oneof_child'
@@ -11,7 +11,7 @@ class NodeField(str, Enum):
     additional_data = 'additional_data'
 
 
-class EdgeField(str, Enum):
+class EdgeField(StrEnum):
     kwarg_name = 'kwarg_name'
     is_switch = 'is_switch'
     case_branch = 'case_branch'

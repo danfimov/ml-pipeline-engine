@@ -16,7 +16,7 @@ from ml_pipeline_engine.types import NodeId
 
 _HexColorT = t.TypeVar('_HexColorT', bound=str)
 _NodeTypeT = t.TypeVar('_NodeTypeT', bound=t.Union[str, NodeType])
-_NodeColorsT = t.Dict[_NodeTypeT, _HexColorT]
+_NodeColorsT = dict[_NodeTypeT, _HexColorT]
 
 
 class GraphConfigImpl:
@@ -48,7 +48,7 @@ class GraphConfigImpl:
         line_number = inspect.getsourcelines(node)[-1]
         return f'{file_path}.py#L{line_number}'
 
-    def _generate_nodes(self) -> t.List[schema.Node]:
+    def _generate_nodes(self) -> list[schema.Node]:
         """
         Generate physical and artificial nodes
         """
@@ -88,7 +88,7 @@ class GraphConfigImpl:
 
         return nodes
 
-    def _generate_edges(self) -> t.List[schema.Edge]:
+    def _generate_edges(self) -> list[schema.Edge]:
         """
         Generate edges between physical and artificial nodes
         """
@@ -97,7 +97,7 @@ class GraphConfigImpl:
             for source, target in self._dag.graph.edges
         ]
 
-    def _generate_node_types(self, node_colors: t.Optional[_NodeColorsT] = None) -> t.Dict[str, schema.NodeType]:
+    def _generate_node_types(self, node_colors: _NodeColorsT | None = None) -> dict[str, schema.NodeType]:
         """
         Generate all node types.
         Will skip nodes without type.
@@ -131,9 +131,9 @@ class GraphConfigImpl:
     def generate(
         self,
         name: str,
-        verbose_name: t.Optional[str] = None,
-        repo_link: t.Optional[str] = None,
-        node_colors: t.Optional[_NodeColorsT] = None,
+        verbose_name: str | None = None,
+        repo_link: str | None = None,
+        node_colors: _NodeColorsT | None = None,
         **kwargs: t.Any,
     ) -> schema.GraphConfig:
         """

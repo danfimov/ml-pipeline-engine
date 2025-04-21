@@ -30,8 +30,8 @@ from ml_pipeline_engine.types import NodeResultT
 from ml_pipeline_engine.types import PipelineContextLike
 from ml_pipeline_engine.types import Recurrent
 
-_EventDictT = t.Dict[t.Any, asyncio.Event]
-_ConditionT = t.Dict[t.Any, asyncio.Condition]
+_EventDictT = dict[t.Any, asyncio.Event]
+_ConditionT = dict[t.Any, asyncio.Condition]
 
 
 @dataclass
@@ -96,7 +96,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
 
     _node_storage: DAGNodeStorage = field(default_factory=DAGNodeStorage)
     _lock_manager: DAGConcurrentManagerLock = field(init=False)
-    _memorization_store: t.Dict[t.Any, t.Any] = field(default_factory=dict)
+    _memorization_store: dict[t.Any, t.Any] = field(default_factory=dict)
     _coro_tasks: t.Set[asyncio.Task] = field(default_factory=set)
     _alias_run_method: str = 'run'
 
@@ -118,7 +118,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
             logger.debug('Task %s has been cancelled', coro_task.get_name())
 
     @staticmethod
-    def _get_first_error_in_tasks(coro_tasks: t.Iterable[asyncio.Task]) -> t.Optional[t.Type[Exception]]:
+    def _get_first_error_in_tasks(coro_tasks: t.Iterable[asyncio.Task]) -> t.Type[Exception] | None:
         """
         Check if there is an error in the coro tasks and return the first one
         """
@@ -180,7 +180,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
 
         return self._node_storage.get_node_result(self.dag.output_node, with_hidden=True)
 
-    def _get_node_kwargs(self, node_id: NodeId) -> t.Dict[str, t.Any]:
+    def _get_node_kwargs(self, node_id: NodeId) -> dict[str, t.Any]:
         """
         Get the node's dependencies that are needed to run the node
         """
@@ -396,7 +396,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
 
                 raise
 
-    def _get_node_order(self, dag: DiGraph) -> t.List[NodeId]:
+    def _get_node_order(self, dag: DiGraph) -> list[NodeId]:
         """
         Calculate the order for nodes according to the dag's type
         """
@@ -421,7 +421,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
 
         return current_dag.intersection(node_predecessors)
 
-    def _get_predecessors(self, dag: DiGraph, node_id: NodeId) -> t.List[NodeId]:
+    def _get_predecessors(self, dag: DiGraph, node_id: NodeId) -> list[NodeId]:
         """
         Get the node's predecessors
         """
@@ -799,7 +799,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
         for descendant_node_id in descendants:
             await self._lock_manager.unlock_condition(descendant_node_id)
 
-    def __get_descendants(self, node_id: NodeId) -> t.List[NodeId]:
+    def __get_descendants(self, node_id: NodeId) -> list[NodeId]:
         """
         Get all first-line the node's descendants including artificial nodes
         """

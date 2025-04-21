@@ -1,4 +1,3 @@
-import typing as t
 from unittest.mock import ANY
 from uuid import UUID
 
@@ -41,7 +40,7 @@ async def test_pipeline_chart_events_success(mocker: pytest_mock.MockerFixture, 
             self,
             ctx: PipelineContextLike,
             node_id: NodeId,
-            error: t.Optional[Exception],
+            error: Exception | None,
         ) -> None:
             ...
 
@@ -124,7 +123,7 @@ async def test_pipeline_chart_events_error(mocker: pytest_mock.MockerFixture, mo
             self,
             ctx: PipelineContextLike,
             node_id: NodeId,
-            error: t.Optional[Exception],
+            error: Exception | None,
         ) -> None:
             ...
 

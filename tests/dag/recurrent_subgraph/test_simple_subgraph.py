@@ -19,7 +19,7 @@ class InvertNumber(RecurrentProcessor):
     @invert_process_mocker
     def process(
         self,
-        additional_data: t.Optional[AdditionalDataT] = None,
+        additional_data: AdditionalDataT | None = None,
         **_: t.Any,
     ) -> float:
 

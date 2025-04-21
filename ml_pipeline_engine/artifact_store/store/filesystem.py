@@ -47,7 +47,7 @@ class FileSystemArtifactStore(SerializedArtifactStore):
 
         return path
 
-    def _get_glob(self, node_id: NodeId) -> t.List[Path]:
+    def _get_glob(self, node_id: NodeId) -> list[Path]:
         return list(Path(self._ensure_dir()).glob(f'{node_id}.*'))
 
     @dont_use_for_prod
