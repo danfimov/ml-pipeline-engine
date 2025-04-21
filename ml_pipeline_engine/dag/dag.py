@@ -69,7 +69,12 @@ class DAG(DAGLike):
             **kwargs,
         )
 
+        if target_dir is None:
+            target_dir = pathlib.Path(__file__).resolve()
+        else:
+            target_dir = pathlib.Path(target_dir)
+
         build_static(
             config,
-            target_dir=pathlib.Path(target_dir) or pathlib.Path(__file__).resolve(),
+            target_dir=target_dir,
         )

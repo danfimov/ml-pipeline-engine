@@ -706,12 +706,16 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
         """
 
         start_from_node_id = self.dag.graph.nodes[node_id].get(NodeField.start_node)
+        if not isinstance(start_from_node_id, str):
+            raise ValueError(f'Invalid start_node {start_from_node_id} for node {node_id}')
 
         if self._node_storage.exists_active_rec_subgraph(start_from_node_id, node_id):
             return
 
         self._node_storage.set_active_rec_subgraph(start_from_node_id, node_id)
         max_iterations = self.dag.graph.nodes[node_id].get(NodeField.max_iterations)
+        if not isinstance(max_iterations, int):
+            raise ValueError(f'Invalid max_iterations {max_iterations} for node {node_id}')
 
         recurrent_subgraph = get_connected_subgraph(
             self.dag.graph, start_from_node_id, node_id, is_recurrent=True, is_oneof=dag.is_oneof,

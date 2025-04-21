@@ -50,7 +50,7 @@ class AnnotationDAGBuilder:
         """
         run_method = get_callable_run_method(obj)
 
-        annotations: list | None = getattr(run_method, '__annotations__', None)
+        annotations: list[str] | None = getattr(run_method, '__annotations__', None)
         parameters = [
             (name, bool(parameter.empty))
             for name, parameter in inspect.signature(run_method).parameters.items()

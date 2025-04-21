@@ -21,15 +21,14 @@ class DiGraph(nx.DiGraph):
         self.is_oneof = is_oneof
         self.is_nested_oneof = is_nested_oneof
 
-        self.source = None
-        self.dest = None
+        self.source: NodeId | None = None
+        self.dest: NodeId | None = None
 
-        self.__hash_value = None
+        self.__hash_value: int | None = None
 
     def __hash__(self) -> int:
         if self.__hash_value is None:
             self.__hash_value = hash(tuple(sorted(itertools.chain(*self.nodes.keys(), *self.edges.keys()))))
-
         return self.__hash_value
 
 
