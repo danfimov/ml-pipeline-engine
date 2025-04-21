@@ -7,7 +7,7 @@ from ml_pipeline_engine.types import RetryPolicyLike
 
 @dataclass(frozen=True)
 class NodeRetryPolicy(RetryPolicyLike):
-    node: NodeBase
+    node: t.Type[NodeBase]
 
     @property
     def delay(self) -> float:

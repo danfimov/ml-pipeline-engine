@@ -24,7 +24,7 @@ class GraphConfigImpl:
     def __init__(self, dag: DAGLike) -> None:
         self._dag = dag
 
-    def _get_node(self, node_id: NodeId) -> t.Type[NodeBase]:
+    def _get_node(self, node_id: NodeId) -> t.Type[NodeBase] | None:
         """
         Get a node object. Sometimes it can be None if we work with an artificial node
         """

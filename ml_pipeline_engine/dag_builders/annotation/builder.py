@@ -19,6 +19,7 @@ from ml_pipeline_engine.node import generate_node_id
 from ml_pipeline_engine.node import get_callable_run_method
 from ml_pipeline_engine.node import get_node_id
 from ml_pipeline_engine.types import DAGLike
+from ml_pipeline_engine.types import DigraphT
 from ml_pipeline_engine.types import NodeBase
 from ml_pipeline_engine.types import NodeId
 from ml_pipeline_engine.types import RecurrentProtocol
@@ -30,7 +31,7 @@ __all__ = [
 
 KwargName = str
 
-NodeInputSpec = tuple[KwargName, InputMark | SwitchCaseMark]
+NodeInputSpec = tuple[KwargName, InputMark | SwitchCaseMark | InputOneOfMark | RecurrentSubGraphMark]
 
 NodeResultT = t.TypeVar('NodeResultT')
 
@@ -61,7 +62,7 @@ class AnnotationDAGBuilder:
             raise errors.UndefinedAnnotation(f'Невозможно найти аннотации типов. obj={run_method}')
 
         for name, is_empty in parameters:
-            if is_empty and name not in annotations:
+            if is_empty and name not in annotations:  # type: ignore[operator]
                 raise errors.UndefinedParamAnnotation(f'Не указан тип для параметра name={name}, obj={run_method}')
 
     @staticmethod
@@ -78,7 +79,7 @@ class AnnotationDAGBuilder:
                 f'У объекта не существует корректного базового класса, пригодного для графа. node={node}',
             )
 
-    def validate_node(self, node: NodeBase) -> None:
+    def validate_node(self, node: t.Type[NodeBase]) -> None:
         """
         Валидация ноды по разным правилам
         """
@@ -110,7 +111,7 @@ class AnnotationDAGBuilder:
 
         return inputs
 
-    def _add_node_to_map(self, node: NodeBase) -> None:
+    def _add_node_to_map(self, node: t.Type[NodeBase]) -> None:
         """
         Добавление узла в мэппинг "Имя узла -> Класс/функция узла"
         """
@@ -135,7 +136,7 @@ class AnnotationDAGBuilder:
         self._dag.add_node(node_id, **{NodeField.is_switch.value: True})
         self._dag.add_edge(switch_decide_node_id, node_id, **{EdgeField.is_switch.value: True})
 
-    def _traverse_breadth_first_to_dag(self, input_node: NodeBase, output_node: NodeBase):  # noqa
+    def _traverse_breadth_first_to_dag(self, input_node: t.Type[NodeBase], output_node: t.Type[NodeBase]) -> None:
         """
         Выполнить обход зависимостей классов/функций узлов, построить граф
         """
@@ -143,7 +144,7 @@ class AnnotationDAGBuilder:
         visited = {output_node}
         stack = deque([output_node])
 
-        def _set_visited(node: NodeBase) -> None:
+        def _set_visited(node: t.Type[NodeBase]) -> None:
             if node in visited:
                 return
 
@@ -300,7 +301,7 @@ class AnnotationDAGBuilder:
 
         return is_process_pool_needed, is_thread_pool_needed
 
-    def build(self, input_node: NodeBase, output_node: NodeBase | None = None) -> DAGLike:
+    def build(self, input_node: t.Type[NodeBase], output_node: t.Type[NodeBase] | None = None) -> DAGLike:
         """
         Построить граф путем сборки зависимостей по аннотациям типа (меткам входов)
         """
@@ -318,7 +319,7 @@ class AnnotationDAGBuilder:
         is_process_pool_needed, is_thread_pool_needed = self._is_executor_needed()
 
         return DAG(
-            graph=self._dag.copy(),
+            graph=self._dag.copy(),  # type: ignore[arg-type]
             input_node=get_node_id(input_node),
             output_node=get_node_id(output_node),
             node_map=copy.deepcopy(self._node_map),
@@ -328,9 +329,9 @@ class AnnotationDAGBuilder:
 
 
 def build_dag(
-    input_node: NodeBase[t.Any],
-    output_node: NodeBase[NodeResultT],
-) -> DAGLike[NodeResultT]:
+    input_node: t.Type[NodeBase[t.Any]],
+    output_node: t.Type[NodeBase[NodeResultT]],
+) -> DAGLike[NodeResultT, DigraphT]:
     """
     Построить граф путем сборки зависимостей по аннотациям типа (меткам входов)
 
@@ -349,8 +350,8 @@ def build_dag(
 
 
 def build_dag_single(
-    node: NodeBase[NodeResultT],
-) -> DAGLike[NodeResultT]:
+    node: t.Type[NodeBase[NodeResultT]],
+) -> DAGLike[NodeResultT, DigraphT]:
     """
     Построить граф из одного узла
 

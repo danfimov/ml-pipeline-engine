@@ -25,7 +25,7 @@ def generate_node_id(prefix: str, name: str | None = None) -> str:
     return f'{prefix}__{name if name is not None else uuid.uuid4().hex[-8:]}'
 
 
-def get_node_id(node: NodeBase) -> NodeId:
+def get_node_id(node: t.Type[NodeBase] | NodeBase) -> NodeId:
     match getattr(node, 'node_type', None):
         case None:
             node_type = 'node'

@@ -10,13 +10,15 @@ NodeResultT_co = t.TypeVar('NodeResultT_co', covariant=True)
 
 AdditionalDataT = t.TypeVar('AdditionalDataT', bound=t.Any)
 
+DigraphT = t.TypeVar('DigraphT', bound=nx.DiGraph)
+
 PipelineId = t.Union[UUID, str]
 
-NodeId = str
-ModelName = str
-CaseLabel = str
-SerializationNodeKind = str
-NodeTag = str
+NodeId: t.TypeAlias = str
+ModelName: t.TypeAlias = str
+CaseLabel: t.TypeAlias = str
+SerializationNodeKind: t.TypeAlias = str
+NodeTag: t.TypeAlias = str
 
 
 class RetryProtocol(t.Protocol[NodeResultT_co]):
@@ -95,7 +97,7 @@ class CaseResult:
     node_id: NodeId
 
 
-class PipelineChartLike(t.Protocol[NodeResultT]):
+class PipelineChartLike(t.Protocol[NodeResultT, DigraphT]):
     """
     Определение пайплайна ML-модели
 
@@ -103,7 +105,7 @@ class PipelineChartLike(t.Protocol[NodeResultT]):
     """
 
     model_name: ModelName
-    entrypoint: t.Union[NodeBase[NodeResultT], 'DAGLike[NodeResultT]'] | None
+    entrypoint: 'DAGLike[NodeResultT, DigraphT] | None'
     event_managers: list[t.Type['EventManagerLike']]
     artifact_store: t.Type['ArtifactStoreLike'] | None
 
@@ -133,7 +135,7 @@ class PipelineContextLike(t.Protocol):
     async def emit_on_node_start(self, node_id: NodeId) -> t.Any:
         ...
 
-    async def emit_on_node_complete(self, node_id: NodeId, error: Exception | None) -> t.Any:
+    async def emit_on_node_complete(self, node_id: NodeId, error: BaseException | None) -> t.Any:
         ...
 
     async def emit_on_pipeline_start(self) -> t.Any:
@@ -188,7 +190,7 @@ class ArtifactStoreLike(t.Protocol[NodeResultT_co]):
 
 
 class RetryPolicyLike(t.Protocol):
-    node: NodeBase
+    node: t.Type[NodeBase]
 
     @property
     @abc.abstractmethod
@@ -219,17 +221,17 @@ class DAGRunManagerLike(t.Protocol[NodeResultT_co]):
         ...
 
 
-class DAGLike(t.Protocol[NodeResultT_co]):
+class DAGLike(t.Protocol[NodeResultT_co, DigraphT]):
     """
     Граф
     """
 
-    graph: nx.DiGraph
+    graph: DigraphT
     input_node: NodeId
     output_node: NodeId
-    node_map: dict[NodeId, NodeBase]
-    run_manager: DAGRunManagerLike
-    retry_policy: RetryPolicyLike
+    node_map: dict[NodeId, t.Type[NodeBase]]
+    run_manager: t.Type[DAGRunManagerLike]
+    retry_policy: t.Type[RetryPolicyLike]
     is_process_pool_needed: bool
     is_thread_pool_needed: bool
 

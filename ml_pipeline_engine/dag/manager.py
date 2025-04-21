@@ -85,7 +85,7 @@ def cache_key(prefix: str, _: t.Any, *args: t.Any, **kwargs: t.Any) -> tuple:
 
 
 @dataclass
-class DAGRunConcurrentManager(DAGRunManagerLike):
+class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
     """
     Дефолтный менеджер запуска графов.
     Производит конкурентное исполнение узлов.
@@ -482,7 +482,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
         if len(list_node_ids) == 0:
             return None
 
-        local_tasks = []
+        local_tasks: list[asyncio.Task] = []
 
         for node_id in list_node_ids:
 
@@ -518,7 +518,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
 
         await self._lock_manager.wait_for_condition(
             dag.dest,
-            functools.partial(self._node_storage.exists_node_result, dag.dest),
+            functools.partial(self._node_storage.exists_node_result, dag.dest),  # type: ignore[arg-type]
         )
 
         return self._node_storage.get_node_result(dag.dest, with_hidden=True)
