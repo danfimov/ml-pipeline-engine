@@ -79,7 +79,7 @@ class DAGConcurrentManagerLock:
             condition.notify_all()
 
 
-def cache_key(prefix: str, _: t.Any, *args: t.Any, **kwargs: t.Any) -> t.Type[tuple]:
+def cache_key(prefix: str, _: t.Any, *args: t.Any, **kwargs: t.Any) -> tuple:
     """Custom func key generation excluding 'self'."""
     return hashkey(*args, prefix, **kwargs)
 
@@ -118,7 +118,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
             logger.debug('Task %s has been cancelled', coro_task.get_name())
 
     @staticmethod
-    def _get_first_error_in_tasks(coro_tasks: t.Iterable[asyncio.Task]) -> t.Type[Exception] | None:
+    def _get_first_error_in_tasks(coro_tasks: t.Iterable[asyncio.Task]) -> BaseException | None:
         """
         Check if there is an error in the coro tasks and return the first one
         """
@@ -293,7 +293,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike):
 
         self._node_storage.set_switch_result(
             switch_node_id,
-            CaseResult(label=selected_branch_label, node_id=branch_nodes[selected_branch_label]),
+            CaseResult(label=str(selected_branch_label), node_id=branch_nodes[selected_branch_label]),
         )
 
     async def _execute_node(

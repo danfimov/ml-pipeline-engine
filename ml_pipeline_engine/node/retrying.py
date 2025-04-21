@@ -18,5 +18,5 @@ class NodeRetryPolicy(RetryPolicyLike):
         return self.node.attempts or 1
 
     @property
-    def exceptions(self) -> tuple[t.Type[Exception], ...]:
+    def exceptions(self) -> tuple[t.Type[BaseException], ...]:
         return self.node.exceptions or (Exception,)

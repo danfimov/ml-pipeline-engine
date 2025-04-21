@@ -56,21 +56,21 @@ class SwitchCaseMark:
 def SwitchCase(  # noqa:  N802,RUF100
     switch: NodeBase[t.Any],
     cases: tuple[tuple[CaseLabel, NodeBase[NodeResultT]]],
-    name: str | None = None,
+    name: str,
 ) -> t.Type[NodeResultT]:
     return t.cast(t.Any, SwitchCaseMark(switch, cases, name))
 
 
 @dataclass(frozen=True)
-class RecurrentSubGraphMark:
+class RecurrentSubGraphMark(t.Generic[NodeResultT]):
     start_node: NodeBase[NodeResultT]
     dest_node: NodeBase[NodeResultT]
     max_iterations: int
 
 
 def RecurrentSubGraph(  # noqa:  N802,RUF100
-    start_node: t.Type[NodeBase[NodeResultT]],
-    dest_node: t.Type[NodeBase[NodeResultT]],
+    start_node: NodeBase[NodeResultT],
+    dest_node: NodeBase[NodeResultT],
     max_iterations: int,
 ) -> t.Type[NodeResultT]:
     """

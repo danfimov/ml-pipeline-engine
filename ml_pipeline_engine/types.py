@@ -6,6 +6,7 @@ from uuid import UUID
 import networkx as nx
 
 NodeResultT = t.TypeVar('NodeResultT')
+NodeResultT_co = t.TypeVar('NodeResultT_co', covariant=True)
 
 AdditionalDataT = t.TypeVar('AdditionalDataT', bound=t.Any)
 
@@ -18,7 +19,7 @@ SerializationNodeKind = str
 NodeTag = str
 
 
-class RetryProtocol(t.Protocol):
+class RetryProtocol(t.Protocol[NodeResultT_co]):
     """
     Протокол, описывающий свойства повторного исполнения ноды.
     Предоставляет возможность использовать дефолтное значение в случае ошибки.
@@ -29,7 +30,7 @@ class RetryProtocol(t.Protocol):
     exceptions: t.ClassVar[tuple[t.Type[BaseException], ...] | None] = None
     use_default: t.ClassVar[bool] = False
 
-    def get_default(self, **kwargs: t.Any) -> NodeResultT:
+    def get_default(self, **kwargs: t.Any) -> NodeResultT_co:
         ...
 
 
@@ -42,7 +43,7 @@ class TagProtocol(t.Protocol):
 
 
 @dataclass
-class Recurrent:
+class Recurrent(t.Generic[AdditionalDataT]):
     data: AdditionalDataT | None
 
 
@@ -171,7 +172,7 @@ class EventManagerLike(t.Protocol):
         ...
 
 
-class ArtifactStoreLike(t.Protocol):
+class ArtifactStoreLike(t.Protocol[NodeResultT_co]):
     """
     Хранилище артефактов - результатов расчета узлов
     """
@@ -182,7 +183,7 @@ class ArtifactStoreLike(t.Protocol):
     async def save(self, node_id: NodeId, data: t.Any) -> None:
         ...
 
-    async def load(self, node_id: NodeId) -> NodeResultT:
+    async def load(self, node_id: NodeId) -> NodeResultT_co:
         ...
 
 
@@ -201,11 +202,11 @@ class RetryPolicyLike(t.Protocol):
 
     @property
     @abc.abstractmethod
-    def exceptions(self) -> tuple[t.Type[Exception], ...]:
+    def exceptions(self) -> tuple[t.Type[BaseException], ...]:
         ...
 
 
-class DAGRunManagerLike(t.Protocol[NodeResultT]):
+class DAGRunManagerLike(t.Protocol[NodeResultT_co]):
     """
     Менеджер управлением запуска графа
     """
@@ -214,11 +215,11 @@ class DAGRunManagerLike(t.Protocol[NodeResultT]):
     dag: 'DAGLike'
 
     @abc.abstractmethod
-    async def run(self) -> NodeResultT:
+    async def run(self) -> NodeResultT_co:
         ...
 
 
-class DAGLike(t.Protocol[NodeResultT]):
+class DAGLike(t.Protocol[NodeResultT_co]):
     """
     Граф
     """
@@ -233,7 +234,7 @@ class DAGLike(t.Protocol[NodeResultT]):
     is_thread_pool_needed: bool
 
     @abc.abstractmethod
-    async def run(self, ctx: PipelineContextLike) -> NodeResultT:
+    async def run(self, ctx: PipelineContextLike) -> NodeResultT_co:
         ...
 
     def visualize(self, *args: t.Any, **kwargs: t.Any) -> None:

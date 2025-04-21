@@ -38,7 +38,7 @@ NodeResultT = t.TypeVar('NodeResultT')
 class AnnotationDAGBuilder:
     def __init__(self) -> None:
         self._dag = DiGraph(name='main-graph')
-        self._node_map: dict[NodeId, NodeBase] = dict()
+        self._node_map: dict[NodeId, t.Type[NodeBase]] = dict()
         self._recurrent_sub_graphs: list[tuple[NodeId, NodeId]] = []
         self._synthetic_nodes: list[NodeId] = []
 
@@ -87,7 +87,7 @@ class AnnotationDAGBuilder:
         self._check_annotations(node)
 
     @staticmethod
-    def _get_input_marks_map(node: NodeBase) -> list[NodeInputSpec]:
+    def _get_input_marks_map(node: t.Type[NodeBase]) -> list[NodeInputSpec]:
         """
         Получение меток зависимостей для входных kwarg-ов узла
         """

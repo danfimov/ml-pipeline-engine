@@ -41,22 +41,25 @@ def get_node_id(node: NodeBase) -> NodeId:
     return '__'.join([node_type, node_name])
 
 
-def get_callable_run_method(node: NodeBase) -> t.Callable:
+def get_callable_run_method(node: t.Type[NodeBase]) -> t.Callable:
     if not callable(getattr(node, 'process', None)):
         raise RunMethodExpectedError('Missing method for node execution')
-
-    node = get_instance(node)
-    return node.process
+    return get_instance(node).process
 
 
-def run_node_default(node: NodeBase[NodeResultT], **kwargs: t.Any) -> t.Type[NodeResultT]:
+def run_node_default(node: t.Type[NodeBase[NodeResultT]], **kwargs: t.Any) -> t.Type[NodeResultT]:
     """
     Get default value from the node
     """
     return get_instance(node).get_default(**kwargs)
 
 
-async def run_node(node: NodeBase[NodeResultT], *args: t.Any, node_id: NodeId, **kwargs: t.Any) -> t.Type[NodeResultT]:
+async def run_node(
+    node: t.Type[NodeBase[NodeResultT]],
+    *args: t.Any,
+    node_id: NodeId,
+    **kwargs: t.Any,
+) -> t.Type[NodeResultT]:
     """
     Run a node in a specific way according to the node's tags
     """
