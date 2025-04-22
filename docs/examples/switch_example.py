@@ -1,3 +1,7 @@
+"""
+Пример, который реализует переключение нод по условию (аналог switch)
+"""
+
 import asyncio
 
 from ml_pipeline_engine.chart import PipelineChart
@@ -76,10 +80,8 @@ class Out(ProcessorBase):
         return num
 
 
-threads_pool_registry.auto_init()
-
-
 async def main() -> None:
+    threads_pool_registry.auto_init()
     pipeline = PipelineChart(
         'example_pipeline_with_switch',
         build_dag(input_node=Indent, output_node=Out),
