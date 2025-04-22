@@ -51,7 +51,7 @@ class AnnotationDAGBuilder:
         """
         run_method = get_callable_run_method(obj)
 
-        annotations: list[str] | None = getattr(run_method, '__annotations__', None)
+        annotations: t.Optional[list[str]] = getattr(run_method, '__annotations__', None)
         parameters = [
             (name, bool(parameter.empty))
             for name, parameter in inspect.signature(run_method).parameters.items()
@@ -301,7 +301,7 @@ class AnnotationDAGBuilder:
 
         return is_process_pool_needed, is_thread_pool_needed
 
-    def build(self, input_node: t.Type[NodeBase], output_node: t.Type[NodeBase] | None = None) -> DAGLike:
+    def build(self, input_node: t.Type[NodeBase], output_node: t.Optional[t.Type[NodeBase]] = None) -> DAGLike:
         """
         Построить граф путем сборки зависимостей по аннотациям типа (меткам входов)
         """

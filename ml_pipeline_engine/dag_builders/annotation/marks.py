@@ -49,13 +49,13 @@ def GenericInput(node: t.Type[NodeBase[NodeResultT]]) -> t.Type[NodeResultT]:  #
 @dataclass(frozen=True)
 class SwitchCaseMark:
     switch: t.Type[NodeBase[t.Any]]
-    cases: tuple[tuple[str, t.Type[NodeBase]]]
+    cases: list[tuple[str, t.Type[NodeBase]]]
     name: str
 
 
 def SwitchCase(  # noqa:  N802,RUF100
     switch: t.Type[NodeBase[t.Any]],
-    cases: tuple[tuple[CaseLabel, t.Type[NodeBase[NodeResultT]]]],
+    cases: list[tuple[CaseLabel, t.Type[NodeBase[NodeResultT]]]],
     name: str,
 ) -> t.Type[NodeResultT]:
     return t.cast(t.Any, SwitchCaseMark(switch, cases, name))

@@ -20,7 +20,7 @@ class Ident(RecurrentProcessor):
     def process(
         self,
         num: float,
-        additional_data: AdditionalDataT | None = None,  # noqa: ARG002 ignore unused
+        additional_data: t.Optional[AdditionalDataT] = None,  # noqa: ARG002 ignore unused
     ) -> float:
         return num
 

@@ -118,7 +118,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
             logger.debug('Task %s has been cancelled', coro_task.get_name())
 
     @staticmethod
-    def _get_first_error_in_tasks(coro_tasks: t.Iterable[asyncio.Task]) -> BaseException | None:
+    def _get_first_error_in_tasks(coro_tasks: t.Iterable[asyncio.Task]) -> t.Optional[BaseException]:
         """
         Check if there is an error in the coro tasks and return the first one
         """

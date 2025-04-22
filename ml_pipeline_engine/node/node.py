@@ -21,11 +21,11 @@ def generate_pipeline_id() -> uuid.UUID:
     return uuid.uuid4()
 
 
-def generate_node_id(prefix: str, name: str | None = None) -> str:
+def generate_node_id(prefix: str, name: t.Optional[str] = None) -> str:
     return f'{prefix}__{name if name is not None else uuid.uuid4().hex[-8:]}'
 
 
-def get_node_id(node: t.Type[NodeBase] | NodeBase) -> NodeId:
+def get_node_id(node: t.Union[t.Type[NodeBase], NodeBase]) -> NodeId:
     match getattr(node, 'node_type', None):
         case None:
             node_type = 'node'
@@ -99,11 +99,11 @@ async def run_node(
 
 def build_node(
     node: NodeBase,
-    node_name: str | None = None,
-    class_name: str | None = None,
-    atts: dict[str, t.Any] | None = None,
-    attrs: dict[str, t.Any] | None = None,
-    dependencies_default: dict[str, t.Any] | None = None,
+    node_name: t.Optional[str] = None,
+    class_name: t.Optional[str] = None,
+    atts: t.Optional[dict[str, t.Any]] = None,
+    attrs: t.Optional[dict[str, t.Any]] = None,
+    dependencies_default: t.Optional[dict[str, t.Any]] = None,
     **target_dependencies: t.Any,
 ) -> t.Type[NodeBase]:
     """

@@ -26,12 +26,12 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-PoolExecutorT = ProcessPoolExecutor | ThreadPoolExecutor
+PoolExecutorT = t.Union[ProcessPoolExecutor, ThreadPoolExecutor]
 
 
 class PoolExecutorRegistry(metaclass=SingletonMeta):
     def __init__(self) -> None:
-        self._pool_executor: PoolExecutorT | None = None
+        self._pool_executor: t.Optional[PoolExecutorT] = None
 
     @abc.abstractmethod
     def is_ready(self) -> None:

@@ -24,7 +24,7 @@ class GraphConfigImpl:
     def __init__(self, dag: DAGLike) -> None:
         self._dag = dag
 
-    def _get_node(self, node_id: NodeId) -> t.Type[NodeBase] | None:
+    def _get_node(self, node_id: NodeId) -> t.Optional[t.Type[NodeBase]]:
         """
         Get a node object. Sometimes it can be None if we work with an artificial node
         """
@@ -97,7 +97,7 @@ class GraphConfigImpl:
             for source, target in self._dag.graph.edges
         ]
 
-    def _generate_node_types(self, node_colors: _NodeColorsT | None = None) -> dict[str, schema.NodeType]:
+    def _generate_node_types(self, node_colors: t.Optional[_NodeColorsT] = None) -> dict[str, schema.NodeType]:
         """
         Generate all node types.
         Will skip nodes without type.
@@ -131,9 +131,9 @@ class GraphConfigImpl:
     def generate(
         self,
         name: str,
-        verbose_name: str | None = None,
-        repo_link: str | None = None,
-        node_colors: _NodeColorsT | None = None,
+        verbose_name: t.Optional[str] = None,
+        repo_link: t.Optional[str] = None,
+        node_colors: t.Optional[_NodeColorsT] = None,
         **kwargs: t.Any,
     ) -> schema.GraphConfig:
         """

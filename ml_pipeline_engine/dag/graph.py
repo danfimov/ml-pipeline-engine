@@ -21,10 +21,10 @@ class DiGraph(nx.DiGraph):
         self.is_oneof = is_oneof
         self.is_nested_oneof = is_nested_oneof
 
-        self.source: NodeId | None = None
-        self.dest: NodeId | None = None
+        self.source: t.Optional[NodeId] = None
+        self.dest: t.Optional[NodeId] = None
 
-        self.__hash_value: int | None = None
+        self.__hash_value: t.Optional[int] = None
 
     def __hash__(self) -> int:
         if self.__hash_value is None:

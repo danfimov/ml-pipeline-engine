@@ -46,8 +46,8 @@ class DAG(DAGLike):
     def visualize(  # type: ignore
         self,
         name: str,
-        verbose_name: str | None = None,
-        target_dir: pathlib.Path | str | None = None,
+        verbose_name: t.Optional[str] = None,
+        target_dir: t.Optional[t.Union[pathlib.Path, str]] = None,
         **kwargs: t.Any,
     ) -> None:
         """

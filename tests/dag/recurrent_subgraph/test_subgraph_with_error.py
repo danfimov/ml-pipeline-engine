@@ -13,7 +13,7 @@ class InputNumber(ProcessorBase):
     def process(
         self,
         num: float,
-        additional_data: AdditionalDataT | None = None,  # noqa: ARG002
+        additional_data: t.Optional[AdditionalDataT] = None,  # noqa: ARG002
     ) -> float:
         return num
 

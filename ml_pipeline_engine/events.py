@@ -18,7 +18,7 @@ class EventSourceMixin:
     async def emit_on_node_start(self, node_id: NodeId) -> None:
         await self._emit('on_node_start', node_id=node_id)
 
-    async def emit_on_node_complete(self, node_id: NodeId, error: BaseException | None) -> None:
+    async def emit_on_node_complete(self, node_id: NodeId, error: t.Optional[BaseException]) -> None:
         await self._emit('on_node_complete', node_id=node_id, error=error)
 
     async def emit_on_pipeline_start(self) -> None:

@@ -27,9 +27,9 @@ class RetryProtocol(t.Protocol[NodeResultT_co]):
     Предоставляет возможность использовать дефолтное значение в случае ошибки.
     """
 
-    attempts: t.ClassVar[int | None] = None
-    delay: t.ClassVar[float | None] = None
-    exceptions: t.ClassVar[tuple[t.Type[BaseException], ...] | None] = None
+    attempts: t.ClassVar[t.Optional[int]] = None
+    delay: t.ClassVar[t.Optional[float]] = None
+    exceptions: t.ClassVar[t.Optional[tuple[t.Type[BaseException], ...]]] = None
     use_default: t.ClassVar[bool] = False
 
     def get_default(self, **kwargs: t.Any) -> NodeResultT_co:
@@ -46,7 +46,7 @@ class TagProtocol(t.Protocol):
 
 @dataclass
 class Recurrent(t.Generic[AdditionalDataT]):
-    data: AdditionalDataT | None
+    data: t.Optional[AdditionalDataT]
 
 
 class RecurrentProtocol(t.Protocol):
@@ -55,7 +55,7 @@ class RecurrentProtocol(t.Protocol):
     """
 
     @abc.abstractmethod
-    def next_iteration(self, data: AdditionalDataT | None) -> Recurrent:
+    def next_iteration(self, data: t.Optional[AdditionalDataT]) -> Recurrent:
         """
         Метод для инициализации повторного исполнения подграфа
         """
@@ -65,11 +65,11 @@ class NodeBase(RetryProtocol, TagProtocol, t.Protocol[NodeResultT]):
     """
     Basic node interface
     """
-    node_type: t.ClassVar[str | None] = None
-    name: t.ClassVar[str | None] = None
-    verbose_name: t.ClassVar[str | None] = None
+    node_type: t.ClassVar[t.Optional[str]] = None
+    name: t.ClassVar[t.Optional[str]] = None
+    verbose_name: t.ClassVar[t.Optional[str]] = None
 
-    process: t.Callable[..., NodeResultT] | t.Callable[..., t.Awaitable[NodeResultT]]
+    process: t.Union[t.Callable[..., NodeResultT], t.Callable[..., t.Awaitable[NodeResultT]]]
 
 
 @dataclass(frozen=True)
@@ -80,7 +80,7 @@ class PipelineResult(t.Generic[NodeResultT]):
 
     pipeline_id: PipelineId
     value: NodeResultT
-    error: Exception | None
+    error: t.Optional[Exception]
 
     def raise_on_error(self) -> None:
         if self.error is not None:
@@ -105,15 +105,15 @@ class PipelineChartLike(t.Protocol[NodeResultT, DigraphT]):
     """
 
     model_name: ModelName
-    entrypoint: 'DAGLike[NodeResultT, DigraphT] | None'
+    entrypoint: 't.Optional[DAGLike[NodeResultT, DigraphT]]'
     event_managers: list[t.Type['EventManagerLike']]
-    artifact_store: t.Type['ArtifactStoreLike'] | None
+    artifact_store: t.Optional[t.Type['ArtifactStoreLike']]
 
     async def run(
         self,
-        pipeline_id: PipelineId | None = None,
-        input_kwargs: dict[str, t.Any] | None = None,
-        meta: dict[str, t.Any] | None = None,
+        pipeline_id: t.Optional[PipelineId] = None,
+        input_kwargs: t.Optional[dict[str, t.Any]] = None,
+        meta: t.Optional[dict[str, t.Any]] = None,
     ) -> PipelineResult[NodeResultT]:
         ...
 
@@ -135,7 +135,7 @@ class PipelineContextLike(t.Protocol):
     async def emit_on_node_start(self, node_id: NodeId) -> t.Any:
         ...
 
-    async def emit_on_node_complete(self, node_id: NodeId, error: BaseException | None) -> t.Any:
+    async def emit_on_node_complete(self, node_id: NodeId, error: t.Optional[BaseException]) -> t.Any:
         ...
 
     async def emit_on_pipeline_start(self) -> t.Any:
@@ -170,7 +170,7 @@ class EventManagerLike(t.Protocol):
     async def on_node_start(self, ctx: PipelineContextLike, node_id: NodeId) -> None:
         ...
 
-    async def on_node_complete(self, ctx: PipelineContextLike, node_id: NodeId, error: Exception | None) -> None:
+    async def on_node_complete(self, ctx: PipelineContextLike, node_id: NodeId, error: t.Optional[Exception]) -> None:
         ...
 
 

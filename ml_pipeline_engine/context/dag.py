@@ -21,9 +21,9 @@ class DAGPipelineContext(EventSourceMixin, PipelineContextLike):
     def __init__(
         self,
         chart: PipelineChartLike,
-        pipeline_id: PipelineId | None = None,
-        input_kwargs: dict[str, t.Any] | None = None,
-        meta: dict[str, t.Any] | None = None,
+        pipeline_id: t.Optional[PipelineId] = None,
+        input_kwargs: t.Optional[dict[str, t.Any]] = None,
+        meta: t.Optional[dict[str, t.Any]] = None,
     ) -> None:
         self.chart = chart
         self.pipeline_id = pipeline_id if pipeline_id is not None else generate_pipeline_id()
@@ -52,8 +52,8 @@ class DAGPipelineContext(EventSourceMixin, PipelineContextLike):
 def create_context_from_chart(
     chart: PipelineChartLike,
     input_kwargs: dict[str, t.Any],
-    pipeline_id: PipelineId | None = None,
-    meta: dict[str, t.Any] | None = None,
+    pipeline_id: t.Optional[PipelineId] = None,
+    meta: t.Optional[dict[str, t.Any]] = None,
 ) -> DAGPipelineContext:
     """
     Создать контекст выполнения пайплайна ML-модели

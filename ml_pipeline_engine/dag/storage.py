@@ -56,7 +56,7 @@ class DAGNodeStorage:
     def set_node_result(self, node_id: NodeId, data: t.Any) -> None:
         self.node_results.set(node_id, data)
 
-    def get_node_result(self, node_id: NodeId | None, with_hidden: bool = False) -> t.Any:
+    def get_node_result(self, node_id: t.Optional[NodeId], with_hidden: bool = False) -> t.Any:
         return self.node_results.get_with_hidden(node_id, with_hidden)
 
     def hide_node_result(self, node_id: NodeId) -> None:

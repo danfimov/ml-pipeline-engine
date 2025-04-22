@@ -25,5 +25,5 @@ class SerializedArtifactStore(ArtifactStore, metaclass=ABCMeta):
         super().__init__(ctx, *args, **kwargs)
 
     @abstractmethod
-    async def save(self, node_id: NodeId, data: t.Any, fmt: DataFormat | None = None) -> None:
+    async def save(self, node_id: NodeId, data: t.Any, fmt: t.Optional[DataFormat] = None) -> None:
         ...

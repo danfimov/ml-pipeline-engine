@@ -1,3 +1,4 @@
+import typing as t
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
 from multiprocessing import Manager
@@ -14,7 +15,7 @@ class PoolExecutorRegistry(BasePoolExecutorRegistry):
 
     def __init__(self) -> None:
         super().__init__()
-        self._process_manager: SyncManager | None = None
+        self._process_manager: t.Optional[SyncManager] = None
 
     def is_ready(self) -> None:
         if (
