@@ -110,7 +110,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         """
 
         for coro_task in coro_tasks:
-
             if coro_task.done() or coro_task.cancelled():
                 continue
 
@@ -379,7 +378,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
                 )
 
                 if n_attempts == retry_policy.attempts:
-
                     if node.use_default:
                         return run_node_default(node, **kwargs)
 
@@ -402,12 +400,9 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         """
 
         return [
-            node_id for node_id in nx.topological_sort(dag)
-            if (
-                not self._node_storage.exists_processed_node(node_id)
-                if not dag.is_recurrent
-                else True
-            )
+            node_id
+            for node_id in nx.topological_sort(dag)
+            if (not self._node_storage.exists_processed_node(node_id) if not dag.is_recurrent else True)
         ]
 
     @cachedmethod(lambda self: self._memorization_store, key=functools.partial(cache_key, 'node_dependencies'))
@@ -432,11 +427,10 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
             else self.dag.graph.predecessors(node_id),
         )
 
-        for idx, node_id in enumerate(predecessors):
-
-            if self._is_switch(node_id):
+        for idx, node_id_from_predecessors in enumerate(predecessors):
+            if self._is_switch(node_id_from_predecessors):
                 with suppress(KeyError, AttributeError):
-                    predecessors[idx] = self._node_storage.get_switch_result(node_id).node_id
+                    predecessors[idx] = self._node_storage.get_switch_result(node_id_from_predecessors).node_id
 
         return predecessors
 
@@ -448,7 +442,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         logger.debug('Checking if the node can be executed node_id=%s', node_id)
 
         for pred_node_id in self._get_predecessors(dag, node_id):
-
             if (
                 not self._node_storage.exists_node_result(pred_node_id)
                 # The node cannot be executed if there is a "Recurrent" result in the node's dependencies.
@@ -485,7 +478,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         local_tasks: list[asyncio.Task] = []
 
         for node_id in list_node_ids:
-
             await self._lock_manager.wait_for_condition(
                 node_id,
                 functools.partial(self._is_ready_to_execute, dag, node_id),
@@ -527,10 +519,7 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         """
         Check if the subgraph has an error
         """
-        return any([
-            self._node_storage.exists_node_error(node_id)
-            for node_id in dag.nodes
-        ])
+        return any([self._node_storage.exists_node_error(node_id) for node_id in dag.nodes])
 
     async def _run_oneof(self, dag: DiGraph, node_id: NodeId) -> t.Any:
         """
@@ -540,7 +529,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         logger.debug('Prepare OneOf DAG node_id=%s', node_id)
 
         for idx, subgraph_node_id in enumerate(self.dag.graph.nodes[node_id][NodeField.oneof_nodes]):
-
             oneof_dag = self._get_reduced_dag(
                 source=self.dag.input_node,
                 dest=subgraph_node_id,
@@ -564,7 +552,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
             )
 
             if not self.__has_subgraph_error(oneof_dag):
-
                 # The node_id is a synthetic node and cannot be executed anywhere. Hence, we should copy the
                 # result of the last successful subgraph and unlock everything related to the synthetic node.
                 self._node_storage.copy_node_result(subgraph_node_id, node_id)
@@ -718,7 +705,11 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
             raise ValueError(f'Invalid max_iterations {max_iterations} for node {node_id}')
 
         recurrent_subgraph = get_connected_subgraph(
-            self.dag.graph, start_from_node_id, node_id, is_recurrent=True, is_oneof=dag.is_oneof,
+            self.dag.graph,
+            start_from_node_id,
+            node_id,
+            is_recurrent=True,
+            is_oneof=dag.is_oneof,
         )
         logger.debug('%s Start the process of the recurrent subgraph', recurrent_subgraph)
 
@@ -813,7 +804,6 @@ class DAGRunConcurrentManager(DAGRunManagerLike, t.Generic[NodeResultT]):
         descendants = list(nx.descendants_at_distance(self.dag.graph, node_id, 1))
 
         for idx in range(len(descendants)):
-
             descendant_node_id = descendants[idx]
 
             if self._is_switch(descendant_node_id):

@@ -2,6 +2,7 @@ import abc
 import typing as t
 
 from ml_pipeline_engine.node.enums import NodeType
+from ml_pipeline_engine.types import AdditionalDataT
 from ml_pipeline_engine.types import NodeBase
 from ml_pipeline_engine.types import NodeResultT
 from ml_pipeline_engine.types import Recurrent
@@ -24,5 +25,5 @@ class RecurrentProcessor(ProcessorBase, RecurrentProtocol):
     Узел процессора, который может быть исполнен в рекуррентном подграфе
     """
 
-    def next_iteration(self, data) -> Recurrent:  # noqa: ANN001
+    def next_iteration(self, data: t.Optional[AdditionalDataT]) -> Recurrent:
         return Recurrent(data=data)
