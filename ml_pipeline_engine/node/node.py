@@ -26,17 +26,15 @@ def generate_node_id(prefix: str, name: t.Optional[str] = None) -> str:
 
 
 def get_node_id(node: t.Union[t.Type[NodeBase], NodeBase]) -> NodeId:
-    match getattr(node, 'node_type', None):
-        case None:
-            node_type = 'node'
-        case node_type_value:
-            node_type = node_type_value
+    if (node_type_value := getattr(node, 'node_type', None)) is None:
+        node_type = 'node'
+    else:
+        node_type = node_type_value
 
-    match getattr(node, 'name', None):
-        case None:
-            node_name = f'{node.__module__}_{getattr(node, "__name__", node.__class__.__name__)}'.replace('.', '_')
-        case name:
-            node_name = name
+    if (name := getattr(node, 'name', None)) is None:
+        node_name = f'{node.__module__}_{getattr(node, "__name__", node.__class__.__name__)}'.replace('.', '_')
+    else:
+        node_name = name
 
     return '__'.join([node_type, node_name])
 

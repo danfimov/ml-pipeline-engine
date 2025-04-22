@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 import networkx as nx
+from typing_extensions import TypeAlias
 
 NodeResultT = t.TypeVar('NodeResultT')
 NodeResultT_co = t.TypeVar('NodeResultT_co', covariant=True)
@@ -14,11 +15,11 @@ DigraphT = t.TypeVar('DigraphT', bound=nx.DiGraph)
 
 PipelineId = t.Union[UUID, str]
 
-NodeId: t.TypeAlias = str
-ModelName: t.TypeAlias = str
-CaseLabel: t.TypeAlias = str
-SerializationNodeKind: t.TypeAlias = str
-NodeTag: t.TypeAlias = str
+NodeId: TypeAlias = str
+ModelName: TypeAlias = str
+CaseLabel: TypeAlias = str
+SerializationNodeKind: TypeAlias = str
+NodeTag: TypeAlias = str
 
 
 class RetryProtocol(t.Protocol[NodeResultT_co]):

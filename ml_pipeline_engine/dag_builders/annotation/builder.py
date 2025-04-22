@@ -31,7 +31,7 @@ __all__ = [
 
 KwargName = str
 
-NodeInputSpec = tuple[KwargName, InputMark | SwitchCaseMark | InputOneOfMark | RecurrentSubGraphMark]
+NodeInputSpec = tuple[KwargName, t.Union[InputMark, SwitchCaseMark, InputOneOfMark, RecurrentSubGraphMark]]
 
 NodeResultT = t.TypeVar('NodeResultT')
 
