@@ -21,30 +21,11 @@ jobs:
       - name: Checkout changes
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - name: Set up python with poetry and install dependencies
+        uses: danfimov/setup-poetry@v0.2
         with:
           python-version: '3.11'
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-        with:
-          poetry-version: 1.8.5
-
-      - name: Setup a local virtual environment
-        run: |
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project true --local
-
-      - uses: actions/cache@v3
-        name: Define a cache for the virtual environment based on the dependencies lock file
-        with:
-          path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-root
+          install-args: '--no-root --all-extras'
 
       - name: Lint with Ruff
         run: |

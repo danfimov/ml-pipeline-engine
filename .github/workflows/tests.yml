@@ -27,30 +27,11 @@ jobs:
       - name: Checkout changes
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Set up python with poetry and install dependencies
+        uses: danfimov/setup-poetry@v0.2
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-        with:
-          poetry-version: 1.8.5
-
-      - name: Setup a local virtual environment (if no poetry.toml file)
-        run: |
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project true --local
-
-      - uses: actions/cache@v3
-        name: Define a cache for the virtual environment based on the dependencies lock file
-        with:
-          path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-root
+          python-version: '3.11'
+          install-args: '--no-root --all-extras'
 
       - name: Test with pytest
         run: |
