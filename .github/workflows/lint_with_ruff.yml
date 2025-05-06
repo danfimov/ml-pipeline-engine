@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up python with poetry and install dependencies
-        uses: danfimov/setup-poetry@v0.1
+        uses: danfimov/setup-poetry@v0.2
         with:
           python-version: '3.11'
           install-args: '--no-root --all-extras'
